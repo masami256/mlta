@@ -3,15 +3,15 @@
 
 #include <llvm/IR/Module.h>
 #include <llvm/Analysis/TargetLibraryInfo.h>
-#include <llvm/ADT/Triple.h>
+#include <llvm/TargetParser/Triple.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/IR/DebugInfo.h>
+#include "llvm/IR/Type.h"
 
 #include <unistd.h>
 #include <bitset>
 #include <chrono>
-
 
 #define Z3_ENABLED 0
 
@@ -67,7 +67,7 @@ extern cl::opt<unsigned> VerboseLevel;
 //
 
 string getFileName(DILocation *Loc, 
-		DISubprogram *SP=NULL);
+		DISubprogram *SP=nullptr);
 
 bool isConstant(Value *V);
 

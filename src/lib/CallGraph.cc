@@ -156,7 +156,7 @@ bool CallGraphPass::doInitialization(Module *M) {
 	++ MIdx;
 
 	DLMap[M] = &(M->getDataLayout());
-	Int8PtrTy[M] = Type::getInt8PtrTy(M->getContext());
+	Int8PtrTy[M] = llvm::Type::getInt8Ty(M->getContext());
 	IntPtrTy[M] = DLMap[M]->getIntPtrType(M->getContext());
 
 	set<User *>CastSet;
@@ -190,8 +190,8 @@ bool CallGraphPass::doInitialization(Module *M) {
 			size_t FuncHash = funcHash(&F, false);
 			Ctx->sigFuncsMap[FuncHash].insert(&F);
 			StringRef FName = F.getName();
-      if (FName.startswith("__x64") ||
-          FName.startswith("__ia32")) {
+      if (FName.starts_with("__x64") ||
+          FName.starts_with("__ia32")) {
         OutScopeFuncs.insert(&F);
       }
 		}

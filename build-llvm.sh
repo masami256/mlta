@@ -1,12 +1,12 @@
 #!/bin/bash -e
 
 
-# LLVM version: 15.0.0 
+# LLVM version: 18.1.8
 
 ROOT=$(pwd)
 git clone git@github.com:llvm/llvm-project.git
 cd $ROOT/llvm-project
-git checkout e758b77161a7
+git checkout 3b5b5c1ec4a3095ab096dd780e84d7ab81f3d7ff
 
 if [ ! -d "build" ]; then
   mkdir build
