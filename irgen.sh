@@ -1,6 +1,6 @@
 # Configurations
-
-KERNEL_SRC="$(pwd)/../kernels/linux"
+KERNEL_SRC="/opt/masami/v6.1.112"
+#KERNEL_SRC="$(pwd)/../kernels/linux"
 IRDUMPER="$(pwd)/IRDumper/build/lib/libDumper.so"
 CLANG="$(pwd)/llvm-project/prefix/bin/clang"
 CONFIG="defconfig"
@@ -8,7 +8,7 @@ CONFIG="defconfig"
 
 # Use -Wno-error to avoid turning warnings into errors
 NEW_CMD="\n\n\
-KBUILD_USERCFLAGS += -Wno-error -g -Xclang -no-opaque-pointers -Xclang -flegacy-pass-manager -Xclang -load -Xclang $IRDUMPER\nKBUILD_CFLAGS += -Wno-error -g -Xclang -no-opaque-pointers -Xclang -flegacy-pass-manager -Xclang -load -Xclang $IRDUMPER"
+KBUILD_USERCFLAGS += -Wno-error -g -v -Xclang -opaque-pointers=0 -fpass-plugin=$IRDUMPER\nKBUILD_CFLAGS += -Wno-error -g -v -Xclang -opaque-pointers=0 -fpass-plugin=$IRDUMPER"
 
 # Back up Linux Makefile
 #cp $KERNEL_SRC/Makefile $KERNEL_SRC/Makefile.bak
@@ -22,8 +22,8 @@ fi
 echo -e $NEW_CMD >$KERNEL_SRC/IRDumper.cmd
 cat $KERNEL_SRC/Makefile.bak $KERNEL_SRC/IRDumper.cmd >$KERNEL_SRC/Makefile
 
-cd $KERNEL_SRC && make $CONFIG
+cd $KERNEL_SRC && make mrproper && make $CONFIG
 echo $CLANG
 echo $NEW_CMD
-make CC=$CLANG -j`nproc` -k -i
+make V=1 CC=$CLANG -j`nproc` -k -i
 
