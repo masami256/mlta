@@ -15,7 +15,7 @@ build_src_func = \
 			CC=clang CXX=clang++ \
 			cmake ${1} \
 				-DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_CXX_FLAGS_RELEASE="-std=c++14 -fno-rtti -fpic -O3 -v" \
+        -DCMAKE_CXX_FLAGS_RELEASE="-std=c++17 -fno-rtti -fpic -O3 -v" \
 		&& make -j${NPROC})
 
 all: dumper
