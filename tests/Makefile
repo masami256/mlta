@@ -8,7 +8,8 @@ CFLAGS=-Wno-error -g -v -Xclang -opaque-pointers=0 -fpass-plugin=${IRDumper_DIR}
 #CFLAGS=-Wno-error -g -v -Wno-error -g -Xclang -no-opaque-pointers -Xclang -flegacy-pass-manager -Xclang -load -Xclang ${IRDumper_DIR}/libDumper.so
 
 all: test_single_layer \
-test_multi_layer
+test_multi_layer \
+test_multi_layer2
 
 test_single_layer:
 	${CC} ${CFLAGS} single_layer_test.c -o test_single_layer_main
@@ -16,11 +17,17 @@ test_single_layer:
 test_multi_layer:
 	${CC} ${CFLAGS} multi_layer_test.c -o test_multi_layer_main
 
+test_multi_layer2:
+	${CC} ${CFLAGS} multi_layer_test2.c -o test_multi_layer_main2
+
 test_single:
 	${KANALYZER} single_layer_test.bc
 
 test_multi:
 	${KANALYZER} multi_layer_test.bc
+
+test_multi2:
+	${KANALYZER} multi_layer_test2.bc
 
 clean:
 	rm -f test_* *.bc bc.list *.o
