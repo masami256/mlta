@@ -4,3 +4,6 @@ processLinuxTrace.py
 tags
 llvm-project
 *.swp
+*.o
+*.bc
+tests/test_*
