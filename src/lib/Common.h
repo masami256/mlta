@@ -67,7 +67,7 @@ extern cl::opt<unsigned> VerboseLevel;
 //
 
 string getFileName(DILocation *Loc, 
-		DISubprogram *SP=nullptr);
+		DISubprogram *SP=NULL);
 
 bool isConstant(Value *V);
 
