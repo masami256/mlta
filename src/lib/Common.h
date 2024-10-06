@@ -241,5 +241,6 @@ public:
 };
 
 extern Dumper DUMP;
+extern std::string AnalyzeTargetSourceCodePath;
 
 #endif

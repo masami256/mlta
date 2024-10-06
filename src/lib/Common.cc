@@ -10,6 +10,7 @@
 
 // Map from struct elements to its name
 static map<string, set<StringRef>>elementsStructNameMap;
+std::string AnalyzeTargetSourceCodePath;
 
 bool trimPathSlash(string &path, int slash) {
 	while (slash > 0) {
@@ -30,15 +31,9 @@ string getFileName(DILocation *Loc, DISubprogram *SP) {
 		return "";
 
 	int slashToTrim = 2;
-	char *user = getlogin();
-	if (strstr(user, "kjlu")) {
-		slashToTrim = 0;
-		trimPathSlash(FN, slashToTrim);
-		FN = string(SOURCE_CODE_PATH) + "/" + FN;
-	} 
-	else {
-		OP << "== Warning: please specify the path of linux source.";
-	}
+	trimPathSlash(FN, slashToTrim);
+	FN = string(AnalyzeTargetSourceCodePath) + "/" + FN;
+
 	return FN;
 }
 

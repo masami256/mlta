@@ -21,13 +21,13 @@ test_multi_layer2:
 	${CC} ${CFLAGS} multi_layer_test2.c -o test_multi_layer_main2
 
 test_single:
-	${KANALYZER} single_layer_test.bc
+	${KANALYZER} --srcdir ${CUR_DIR} single_layer_test.bc
 
 test_multi:
-	${KANALYZER} multi_layer_test.bc
+	${KANALYZER} --srcdir ${CUR_DIR} multi_layer_test.bc
 
 test_multi2:
-	${KANALYZER} multi_layer_test2.bc
+	${KANALYZER} --srcdir ${CUR_DIR} multi_layer_test2.bc
 
 clean:
 	rm -f test_* *.bc bc.list *.o

@@ -47,6 +47,10 @@ cl::opt<int> MLTA(
     targets"),
   cl::NotHidden, cl::init(2));
 
+cl::opt<std::string> SourceCodePath(
+	"srcdir", cl::desc("Source code path")
+);
+
 GlobalContext GlobalCtx;
 
 
@@ -140,6 +144,11 @@ int main(int argc, char **argv) {
 
 	cl::ParseCommandLineOptions(argc, argv, "global analysis\n");
 	SMDiagnostic Err;
+
+	if (SourceCodePath.empty()) {
+		llvm::errs() << "Please specify source code path\n";
+		exit(1);
+	}
 
 	// Loading modules
 	OP << "Total " << InputFilenames.size() << " file(s)\n";
