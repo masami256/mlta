@@ -150,6 +150,8 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
+	AnalyzeTargetSourceCodePath = SourceCodePath;
+
 	// Loading modules
 	OP << "Total " << InputFilenames.size() << " file(s)\n";
 

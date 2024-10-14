@@ -18,7 +18,7 @@ using namespace llvm;
 // Configurations
 //
 
-//#define DEBUG_MLTA
+#define DEBUG_MLTA
 
 extern int ENABLE_MLTA;
 #define SOUND_MODE 1

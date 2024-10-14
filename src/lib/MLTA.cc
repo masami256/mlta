@@ -1288,6 +1288,7 @@ bool MLTA::findCalleesWithMLTA(CallInst *CI,
 
 #ifdef SOUND_MODE
 		if (typeCapSet.find(typeHash(PrevLayerTy)) != typeCapSet.end()) {
+			// FIXME: LLVM 18 breaks this loop here
 			break;
 		}
 #endif
