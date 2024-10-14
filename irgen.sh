@@ -8,7 +8,7 @@ CONFIG="defconfig"
 
 # Use -Wno-error to avoid turning warnings into errors
 NEW_CMD="\n\n\
-KBUILD_USERCFLAGS += -Wno-error -g -v -Xclang -opaque-pointers=0 -fpass-plugin=$IRDUMPER\nKBUILD_CFLAGS += -Wno-error -g -v -Xclang -opaque-pointers=0 -fpass-plugin=$IRDUMPER"
+KBUILD_USERCFLAGS += -Wno-error -g -v -fpass-plugin=$IRDUMPER\nKBUILD_CFLAGS += -Wno-error -g -v -fpass-plugin=$IRDUMPER"
 
 # Back up Linux Makefile
 #cp $KERNEL_SRC/Makefile $KERNEL_SRC/Makefile.bak
