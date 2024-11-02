@@ -4,3 +4,5 @@ processLinuxTrace.py
 tags
 llvm-project
 *.swp
+mlta.code-workspace
+tmpdata

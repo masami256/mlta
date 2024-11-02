@@ -1,6 +1,11 @@
 # Configurations
 
-KERNEL_SRC="$(pwd)/../kernels/linux"
+if [ $# != 1 ]; then
+	echo "[*]Usage: $0 <kernel source path>"
+	exit 1
+fi
+
+KERNEL_SRC="$1"
 IRDUMPER="$(pwd)/IRDumper/build/lib/libDumper.so"
 CLANG="$(pwd)/llvm-project/prefix/bin/clang"
 CONFIG="defconfig"

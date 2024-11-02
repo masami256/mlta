@@ -41,6 +41,10 @@ cl::opt<unsigned> VerboseLevel(
     "verbose-level", cl::desc("Print information at which verbose level"),
     cl::init(0));
 
+cl::opt<string> OptSourceCodePath(
+	"src-path", cl::desc("Source code path")
+);
+
 cl::opt<int> MLTA(
     "mlta",
   cl::desc("Multi-layer type analysis for refining indirect-call \
@@ -140,6 +144,13 @@ int main(int argc, char **argv) {
 
 	cl::ParseCommandLineOptions(argc, argv, "global analysis\n");
 	SMDiagnostic Err;
+
+	if (OptSourceCodePath.empty()) {
+		llvm::errs() << "Please specify source code path\n";
+		exit(1);
+	}
+
+	SourceCodePath = OptSourceCodePath;
 
 	// Loading modules
 	OP << "Total " << InputFilenames.size() << " file(s)\n";

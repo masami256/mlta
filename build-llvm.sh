@@ -8,6 +8,7 @@ git clone git@github.com:llvm/llvm-project.git
 cd $ROOT/llvm-project
 git checkout e758b77161a7
 
+patch -p1 < ../patches/cstding.patch
 if [ ! -d "build" ]; then
   mkdir build
 fi
