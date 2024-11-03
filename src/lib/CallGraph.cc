@@ -144,10 +144,10 @@ void CallGraphPass::doMLTA(Function *F) {
 					printTargets(*FS, CI);
 #endif
 				}
-				}
 			}
 		}
 	}
+}
 
 bool CallGraphPass::doInitialization(Module *M) {
 
@@ -190,10 +190,10 @@ bool CallGraphPass::doInitialization(Module *M) {
 			size_t FuncHash = funcHash(&F, false);
 			Ctx->sigFuncsMap[FuncHash].insert(&F);
 			StringRef FName = F.getName();
-      if (FName.startswith("__x64") ||
-          FName.startswith("__ia32")) {
-        OutScopeFuncs.insert(&F);
-      }
+			if (FName.startswith("__x64") ||
+				FName.startswith("__ia32")) {
+				OutScopeFuncs.insert(&F);
+			}
 		}
 
 		// The following only considers actual functions with body
