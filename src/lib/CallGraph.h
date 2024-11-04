@@ -25,7 +25,7 @@ class CallGraphPass :
 		//
 		// Methods
 		//
-		void doMLTA(Function *F);
+		void doMLTA(Module *M, Function *F);
 
 
 	public:

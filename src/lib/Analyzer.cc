@@ -54,7 +54,7 @@ cl::opt<int> MLTA(
 GlobalContext GlobalCtx;
 
 
-void IterativeModulePass::run(ModuleList &modules) {
+void IterativeModulePass::run(ModuleList &modules /*, llvm::cl::list<std::string> &InputFilenames */) {
 
 	ModuleList::iterator i, e;
 	OP << "[" << ID << "] Initializing " << modules.size() << " modules ";
@@ -62,6 +62,7 @@ void IterativeModulePass::run(ModuleList &modules) {
 	while (again) {
 		again = false;
 		for (i = modules.begin(), e = modules.end(); i != e; ++i) {
+			// Call CallGraphPass::doInitialization()
 			again |= doInitialization(i->first);
 			OP << ".";
 		}
@@ -69,6 +70,8 @@ void IterativeModulePass::run(ModuleList &modules) {
 	OP << "\n";
 
 	unsigned iter = 0, changed = 1;
+	int idx = 0;
+
 	while (changed) {
 		++iter;
 		changed = 0;
@@ -78,13 +81,22 @@ void IterativeModulePass::run(ModuleList &modules) {
 			OP << "[" << ID << " / " << iter << "] ";
 			OP << "[" << ++counter_modules << " / " << total_modules << "] ";
 			OP << "[" << i->second << "]\n";
-
+			// Call CallGraphPass::doModulePass()
 			bool ret = doModulePass(i->first);
 			if (ret) {
 				++changed;
 				OP << "\t [CHANGED]\n";
 			} else
 				OP << "\n";
+
+			// std::error_code EC;
+			// raw_fd_ostream Out(InputFilenames[idx], EC, sys::fs::OF_None);
+			// if (EC) {
+			// 	errs() << "Error opening file for writing: " << EC.message() << "\n";
+			// 	exit(1);
+			// }
+			// WriteBitcodeToFile(*(i->first), Out);
+			idx++;
 		}
 		OP << "[" << ID << "] Updated in " << changed << " modules.\n";
 	}
@@ -102,6 +114,48 @@ void IterativeModulePass::run(ModuleList &modules) {
 	OP << "[" << ID << "] Done!\n\n";
 }
 
+void printCallerMap(const CallerMap &map) {
+    for (const auto &entry : map) {
+        llvm::Function *func = entry.first;
+        const CallInstSet &callSet = entry.second;
+
+        // 呼び出し元関数の情報を表示
+        llvm::outs() << "Caller Function: " << func->getName() << "\n";
+
+        // CallInstSet の内容を表示
+        llvm::outs() << "Calls:\n";
+        for (llvm::CallInst *callInst : callSet) {
+            if (callInst->getCalledFunction()) {
+                llvm::outs() << "  calls: " << callInst->getCalledFunction()->getName() << "\n";
+            } else {
+                llvm::outs() << "  calls: indirect function\n";
+            }
+        }
+    }
+}
+void printCalleeMap(const CalleeMap &calleeMap) {
+    for (const auto &pair : calleeMap) {
+        llvm::CallInst *callInst = pair.first;
+        const FuncSet &funcSet = pair.second;
+
+        // CallInst を表示
+        llvm::outs() << "Call Instruction:\n";
+        callInst->print(llvm::outs());
+        llvm::outs() << "\n";
+
+        // 呼び出し元の関数名を表示（オプション）
+        if (llvm::Function *parentFunc = callInst->getFunction()) {
+            llvm::outs() << "In Function: " << parentFunc->getName() << "\n";
+        }
+
+        // FuncSet の内容を表示
+        llvm::outs() << "Possible Callees:\n";
+        for (llvm::Function *func : funcSet) {
+            llvm::outs() << "  Function: " << func->getName() << "\n";
+        }
+        llvm::outs() << "-------------------------\n";
+    }
+}
 void PrintResults(GlobalContext *GCtx) {
 
 	int TotalTargets = 0;
@@ -180,7 +234,7 @@ int main(int argc, char **argv) {
 
 	// Build global callgraph.
 	CallGraphPass CGPass(&GlobalCtx);
-	CGPass.run(GlobalCtx.Modules);
+	CGPass.run(GlobalCtx.Modules /*, InputFilenames */);
 
 	// Print final results
 	PrintResults(&GlobalCtx);

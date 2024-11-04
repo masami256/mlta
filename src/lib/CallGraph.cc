@@ -40,16 +40,22 @@ using namespace llvm;
 // Implementation
 //
 
-void CallGraphPass::doMLTA(Function *F) {
+void CallGraphPass::doMLTA(Module *M, Function *F) {
 
   // Unroll loops
 #ifdef UNROLL_LOOP_ONCE
   unrollLoops(F);
 #endif
 
-  // Collect callers and callees
-  for (inst_iterator i = inst_begin(F), e = inst_end(F);
+	const auto CallerFunction = F;
+
+	const StringRef CurrentFunctionName = F->getName();
+
+	// Collect callers and callees
+	for (inst_iterator i = inst_begin(F), e = inst_end(F);
 			i != e; ++i) {
+		bool isICALL = false;
+
 		// Map callsite to possible callees.
 		if (CallInst *CI = dyn_cast<CallInst>(&*i)) {
 
@@ -90,6 +96,7 @@ void CallGraphPass::doMLTA(Function *F) {
 				// Save called values for future uses.
 				Ctx->IndirectCallInsts.push_back(CI);
 
+				isICALL = true;
 				ICallSet.insert(CI);
 				if (!FS->empty()) {
 					MatchedICallSet.insert(CI);
@@ -143,6 +150,49 @@ void CallGraphPass::doMLTA(Function *F) {
 #ifdef PRINT_ICALL_TARGET
 					printTargets(*FS, CI);
 #endif
+				}
+				
+				auto CallerSP = F->getSubprogram();
+				StringRef CallerFileName = CallerSP->getFilename();
+				unsigned int CallerLine = CI->getDebugLoc()->getLine();
+
+				auto Callee = CI->getCalledFunction();
+				StringRef CalleeFunctionName = "";
+				if (Callee) {
+					CalleeFunctionName = Callee->getName();
+				}
+
+				for (auto F : *FS) {
+					if (!F->isDeclaration()) {
+						auto *CalleeSP =  F->getSubprogram();
+						StringRef CalleeFileName = CalleeSP->getFilename();
+						StringRef CalleeDir = CalleeSP->getDirectory();
+						unsigned int line = CalleeSP->getLine();
+						
+						if (isICALL) {
+							CallGraphWrapperPass CGPass;
+							CGPass.runOnModule(*M);
+							llvm::CallGraph &CG = CGPass.getCallGraph();
+        					llvm::CallGraphNode *CallerNode = CG[CallerFunction];
+        					llvm::CallGraphNode *CalleeNode = CG[F];
+
+							IRBuilder<> Builder(&*CallerFunction->getEntryBlock().getFirstInsertionPt());
+							CallInst *Call = Builder.CreateCall(F);
+
+							// Add ICALL to call graph.
+							CallerNode->addCalledFunction(Call, CalleeNode);
+							
+							OP << "\nICALL: Call from " << CurrentFunctionName <<  ":" << CallerLine << " : " << F->getName() << "@" << CalleeDir << "/" << CalleeFileName << ":" << line << "\n";
+						} else
+							OP << "\nCALL: Call from " << CurrentFunctionName <<  ":" << CallerLine << " : " << F->getName() << "@" << CalleeDir << "/" << CalleeFileName << ":" << line << "\n";
+					} 
+					else {
+						auto DL = CI->getDebugLoc();
+						StringRef CalleeDir = DL->getDirectory();
+						StringRef CalleeFileName = DL->getFilename();
+						unsigned int line = DL->getLine();
+						OP << "\nLibrary CALL: Call from " << CurrentFunctionName <<  ":" << CallerLine << " : " << F->getName() << "@" << CalleeDir << "/" << CalleeFileName << ":" << line << "\n";
+					}
 				}
 			}
 		}
@@ -311,7 +361,7 @@ bool CallGraphPass::doModulePass(Module *M) {
 		if (F->isDeclaration())
 			continue;
 
-		doMLTA(F);
+		doMLTA(M, F);
 	}
 
 	return false;

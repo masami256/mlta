@@ -95,7 +95,7 @@ public:
 	virtual bool doModulePass(llvm::Module *M)
 		{ return false; }
 
-	virtual void run(ModuleList &modules);
+	virtual void run(ModuleList &modules /*,  llvm::cl::list<std::string> &InputFilenames */);
 };
 
 #endif

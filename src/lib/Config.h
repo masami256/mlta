@@ -18,7 +18,7 @@ using namespace llvm;
 // Configurations
 //
 
-//#define DEBUG_MLTA
+#define DEBUG_MLTA
 
 extern int ENABLE_MLTA;
 #define SOUND_MODE 1
@@ -29,7 +29,7 @@ extern int ENABLE_MLTA;
 #define MAP_DECLARATION_FUNCTION
 #define PRINT_ICALL_TARGET
 
-//#define PRINT_SOURCE_LINE
+#define PRINT_SOURCE_LINE
 //#define MLTA_FIELD_INSENSITIVE
 
 

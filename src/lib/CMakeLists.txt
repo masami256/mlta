@@ -29,4 +29,5 @@ target_link_libraries(kanalyzer
 	LLVMAnalysis
 	LLVMIRReader
 	AnalyzerStatic
+	LLVMBitWriter
 	)
