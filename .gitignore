@@ -6,3 +6,7 @@ llvm-project
 *.swp
 mlta.code-workspace
 tmpdata
+*.bc
+*.dot
+*.png
+test_*
