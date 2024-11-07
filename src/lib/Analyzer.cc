@@ -89,13 +89,14 @@ void IterativeModulePass::run(ModuleList &modules /*, llvm::cl::list<std::string
 			} else
 				OP << "\n";
 
-			// std::error_code EC;
-			// raw_fd_ostream Out(InputFilenames[idx], EC, sys::fs::OF_None);
-			// if (EC) {
-			// 	errs() << "Error opening file for writing: " << EC.message() << "\n";
-			// 	exit(1);
-			// }
-			// WriteBitcodeToFile(*(i->first), Out);
+			std::error_code EC;
+			string outputFileName = InputFilenames[idx] + "-analyzed.bc";
+			raw_fd_ostream Out(outputFileName, EC, sys::fs::OF_None);
+			if (EC) {
+				errs() << "Error opening file for writing: " << EC.message() << "\n";
+				exit(1);
+			}
+			WriteBitcodeToFile(*(i->first), Out);
 			idx++;
 		}
 		OP << "[" << ID << "] Updated in " << changed << " modules.\n";
