@@ -31,7 +31,7 @@ class CallGraphPass :
 		void doMLTA(Module *M, Function *F);
 
 
-		void createGraphData(StringRef ModuleName, 
+		void createGraphData(bool isIndirectCall, StringRef ModuleName, 
 			StringRef CallerFileName, StringRef CurrentFunctionName, 
 			unsigned int CallerLine, StringRef CalleeDir, 
 			StringRef CalleeFileName, unsigned int CalleeLine);

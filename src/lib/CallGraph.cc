@@ -67,24 +67,25 @@ void CallGraphPass::printAllModuleData(AllModules &AllModuleData) {
     }
 }
 
-void CallGraphPass::createGraphData(StringRef ModuleName, 
+void CallGraphPass::createGraphData(bool isIndirectCall, StringRef ModuleName, 
 		StringRef CallerFileName, StringRef CurrentFunctionName, 
 		unsigned int CallerLine, StringRef CalleeDir, 
 		StringRef CalleeFileName, unsigned int CalleeLine)
 {
 
 	// Populate function information
-	FunctionInfo functionInfo;
-	functionInfo.moduleName = ModuleName.str();
-	functionInfo.functionName = CurrentFunctionName.str();
-	functionInfo.callerFileName = CallerFileName.str();
-	functionInfo.callerLine = CallerLine;
-	functionInfo.calleeDir = CalleeDir.str();
-	functionInfo.calleeFileName = CalleeFileName.str();
-	functionInfo.calleeLine = CalleeLine;
+	FunctionInfo fi;
+	fi.isIndirectCall = isIndirectCall;
+	fi.moduleName = ModuleName.str();
+	fi.functionName = CurrentFunctionName.str();
+	fi.callerFileName = CallerFileName.str();
+	fi.callerLine = CallerLine;
+	fi.calleeDir = CalleeDir.str();
+	fi.calleeFileName = CalleeFileName.str();
+	fi.calleeLine = CalleeLine;
 
 	// Add functionInfo to the vector associated with functionName within the module
-	AllModuleData[ModuleName.str()][CurrentFunctionName.str()].push_back(functionInfo);
+	AllModuleData[ModuleName.str()][CurrentFunctionName.str()].push_back(fi);
 }
 
 void CallGraphPass::doMLTA(Module *M, Function *F) {
@@ -233,7 +234,7 @@ void CallGraphPass::doMLTA(Module *M, Function *F) {
 						OP << "\nLibrary CALL: Call from " << CurrentFunctionName <<  ":" << CallerLine << " : " << F->getName() << "@" << CalleeDir << "/" << CalleeFileName << ":" << line << "\n";
 					}
 
-					createGraphData(M->getName(), CallerFileName, CurrentFunctionName, CallerLine, CalleeDir, CalleeFileName, line);
+					createGraphData(isICALL, M->getName(), CallerFileName, CurrentFunctionName, CallerLine, CalleeDir, CalleeFileName, line);
 				}
 			}
 		}

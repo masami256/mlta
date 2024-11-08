@@ -246,6 +246,7 @@ extern Dumper DUMP;
 extern std::string SourceCodePath;
 
 struct FunctionInfo {
+    bool isIndirectCall;
     std::string moduleName;
     std::string functionName;
     std::string callerFileName;
