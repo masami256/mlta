@@ -5,6 +5,8 @@
 #include "MLTA.h"
 #include "Config.h"
 
+#include <unordered_map>
+
 class CallGraphPass : 
 	public virtual IterativeModulePass, public virtual MLTA {
 
@@ -21,6 +23,7 @@ class CallGraphPass :
 		set<CallInst *>ICallSet;
 		set<CallInst *>MatchedICallSet;
 
+		AllModules AllModuleData;
 
 		//
 		// Methods
@@ -28,6 +31,12 @@ class CallGraphPass :
 		void doMLTA(Module *M, Function *F);
 
 
+		void createGraphData(StringRef ModuleName, 
+			StringRef CallerFileName, StringRef CurrentFunctionName, 
+			unsigned int CallerLine, StringRef CalleeDir, 
+			StringRef CalleeFileName, unsigned int CalleeLine);
+
+		void printAllModuleData(AllModules &AllModuleData);
 	public:
 		static int AnalysisPhase;
 

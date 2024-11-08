@@ -12,6 +12,8 @@
 #include <bitset>
 #include <chrono>
 
+#include <unordered_map>
+#include <vector>
 
 #define Z3_ENABLED 0
 
@@ -242,5 +244,19 @@ public:
 
 extern Dumper DUMP;
 extern std::string SourceCodePath;
+
+struct FunctionInfo {
+    std::string moduleName;
+    std::string functionName;
+    std::string callerFileName;
+    unsigned int callerLine;
+    std::string calleeDir;
+    std::string calleeFileName;
+    unsigned int calleeLine;
+};
+
+using FunctionList = std::vector<FunctionInfo>;
+using ModuleData = std::unordered_map<std::string, FunctionList>;
+using AllModules = std::unordered_map<std::string, ModuleData>;
 
 #endif

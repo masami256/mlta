@@ -33,12 +33,59 @@
 #include <map> 
 #include <vector> 
 
-
 using namespace llvm;
 
 //
 // Implementation
 //
+
+void CallGraphPass::printAllModuleData(AllModules &AllModuleData) {
+    // Iterate over all modules in AllModuleData
+    for (const auto &moduleEntry : AllModuleData) {
+        const std::string &moduleName = moduleEntry.first;
+        OP << "Module: " << moduleName << "\n";
+
+        // Iterate over all functions in the current module
+        const ModuleData &moduleData = moduleEntry.second;
+        for (const auto &functionEntry : moduleData) {
+            const std::string &functionName = functionEntry.first;
+            OP << "  Function: " << functionName << "\n";
+
+            // Iterate over all function call information in the function list
+            const FunctionList &functionList = functionEntry.second;
+            for (const FunctionInfo &info : functionList) {
+                OP << "    Function Info:\n";
+                OP << "      Module Name: " << info.moduleName << "\n";
+                OP << "      Function Name: " << info.functionName << "\n";
+                OP << "      Caller File Name: " << info.callerFileName << "\n";
+                OP << "      Caller Line: " << info.callerLine << "\n";
+                OP << "      Callee Directory: " << info.calleeDir << "\n";
+                OP << "      Callee File Name: " << info.calleeFileName << "\n";
+                OP << "      Callee Line: " << info.calleeLine << "\n";
+            }
+        }
+    }
+}
+
+void CallGraphPass::createGraphData(StringRef ModuleName, 
+		StringRef CallerFileName, StringRef CurrentFunctionName, 
+		unsigned int CallerLine, StringRef CalleeDir, 
+		StringRef CalleeFileName, unsigned int CalleeLine)
+{
+
+	// Populate function information
+	FunctionInfo functionInfo;
+	functionInfo.moduleName = ModuleName.str();
+	functionInfo.functionName = CurrentFunctionName.str();
+	functionInfo.callerFileName = CallerFileName.str();
+	functionInfo.callerLine = CallerLine;
+	functionInfo.calleeDir = CalleeDir.str();
+	functionInfo.calleeFileName = CalleeFileName.str();
+	functionInfo.calleeLine = CalleeLine;
+
+	// Add functionInfo to the vector associated with functionName within the module
+	AllModuleData[ModuleName.str()][CurrentFunctionName.str()].push_back(functionInfo);
+}
 
 void CallGraphPass::doMLTA(Module *M, Function *F) {
 
@@ -163,36 +210,30 @@ void CallGraphPass::doMLTA(Module *M, Function *F) {
 				}
 
 				for (auto F : *FS) {
+					StringRef CalleeFileName;
+					StringRef CalleeDir;
+					unsigned int line = 0;
+
 					if (!F->isDeclaration()) {
 						auto *CalleeSP =  F->getSubprogram();
-						StringRef CalleeFileName = CalleeSP->getFilename();
-						StringRef CalleeDir = CalleeSP->getDirectory();
-						unsigned int line = CalleeSP->getLine();
+						CalleeFileName = CalleeSP->getFilename();
+						CalleeDir = CalleeSP->getDirectory();
+						line = CalleeSP->getLine();
 						
-						if (isICALL) {
-							CallGraphWrapperPass CGPass;
-							CGPass.runOnModule(*M);
-							llvm::CallGraph &CG = CGPass.getCallGraph();
-        					llvm::CallGraphNode *CallerNode = CG[CallerFunction];
-        					llvm::CallGraphNode *CalleeNode = CG[F];
-
-							IRBuilder<> Builder(&*CallerFunction->getEntryBlock().getFirstInsertionPt());
-							CallInst *Call = Builder.CreateCall(F);
-
-							// Add ICALL to call graph.
-							CallerNode->addCalledFunction(Call, CalleeNode);
-							
+						if (isICALL) {						
 							OP << "\nICALL: Call from " << CurrentFunctionName <<  ":" << CallerLine << " : " << F->getName() << "@" << CalleeDir << "/" << CalleeFileName << ":" << line << "\n";
 						} else
 							OP << "\nCALL: Call from " << CurrentFunctionName <<  ":" << CallerLine << " : " << F->getName() << "@" << CalleeDir << "/" << CalleeFileName << ":" << line << "\n";
 					} 
 					else {
 						auto DL = CI->getDebugLoc();
-						StringRef CalleeDir = DL->getDirectory();
-						StringRef CalleeFileName = DL->getFilename();
-						unsigned int line = DL->getLine();
+						CalleeDir = DL->getDirectory();
+						CalleeFileName = DL->getFilename();
+						line = DL->getLine();
 						OP << "\nLibrary CALL: Call from " << CurrentFunctionName <<  ":" << CallerLine << " : " << F->getName() << "@" << CalleeDir << "/" << CalleeFileName << ":" << line << "\n";
 					}
+
+					createGraphData(M->getName(), CallerFileName, CurrentFunctionName, CallerLine, CalleeDir, CalleeFileName, line);
 				}
 			}
 		}
@@ -362,6 +403,7 @@ bool CallGraphPass::doModulePass(Module *M) {
 			continue;
 
 		doMLTA(M, F);
+		printAllModuleData(AllModuleData);
 	}
 
 	return false;
